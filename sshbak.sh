@@ -9,7 +9,7 @@ BRED="\e[1;${CRED}"
 BGRN="\e[1;${CGRN}"
 RSTC="\e[0m"
 SPCR="                      "
-ARCHIVE_ROOT="/"
+GZ_ROOT="/"
 
 # show --banner
 banner() {
@@ -20,7 +20,7 @@ banner() {
 
 # show --help
 usage() {
-  echo -e "Usage: ${CYAN}$0${RSTC} <${BGRN}target_machine${RSTC}> [${YELW}-d archive_root${RSTC} | ${YELW}--dir archive_root${RSTC}]\n"
+  echo -e "Usage: ${CYAN}$0${RSTC} <${BGRN}target_machine${RSTC}> [${YELW}-d GZ_ROOT${RSTC} | ${YELW}--dir archive_root${RSTC}]\n"
   echo -e "${CGRN}Required arguments${RSTC}:"
   echo "  target_machine    should be a hostname, IP address, or host entry in the ssh config file"
   echo -e "\n${YELW}Optional arguments${RSTC}:"
@@ -44,7 +44,7 @@ while true; do
       shift
       ;;
     -d|--dir)
-      ARCHIVE_ROOT="$2"
+      GZ_ROOT="$2"
       shift 2
       ;;
     -h|--help)
@@ -85,7 +85,7 @@ fi
 # light fires, kick tires, etc
 ssh "$TARGET" "
   echo -e '\e[32mConnected\e[0m'
-  if [[ \"$ARCHIVE_ROOT\" == \"/\" ]]; then
+  if [[ \"$GZ_ROOT\" == \"/\" ]]; then
     sudo tar czf - --exclude-vcs --exclude=snap --exclude=proc --exclude=sys --exclude=dev \
       --exclude='*/venv' --exclude='*/.venv' --exclude='*/_cacache' --exclude='*/node_modules' \
       --exclude='*/.rustup' --exclude='*/site_packages' --exclude='*/__pycache__' --exclude='*/.pyenv' \
@@ -94,7 +94,7 @@ ssh "$TARGET" "
     sudo tar czf - --exclude-vcs --exclude=snap --exclude=proc --exclude=sys --exclude=dev \
       --exclude='*/venv' --exclude='*/.venv' --exclude='*/_cacache' --exclude='*/node_modules' \
       --exclude='*/.rustup' --exclude='*/site_packages' --exclude='*/__pycache__' --exclude='*/.pyenv' \
-      --exclude='*/.cache' --exclude='*/miniconda3' -C / \"${ARCHIVE_ROOT##/:-/}\"
+      --exclude='*/.cache' --exclude='*/miniconda3' -C / \"${GZ_ROOT##/:-/}\"
   fi
 " | pv -ptrbN "Backing up ${TARGET}" > "$FILENAME"
 
